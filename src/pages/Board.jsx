@@ -12,12 +12,15 @@ import { db } from "../firebase-confing/Firebase";
 import Swal from "sweetalert2";
 import Modal from "react-modal";
 import { QRCodeCanvas } from "qrcode.react";
-
+import { getAuth } from "firebase/auth";
 // Define el elemento de la aplicación
 Modal.setAppElement("#root"); // Cambia '#root' por el ID correcto si es necesario
 
 const Board = () => {
+ 
   const [description, setDescription] = useState("");
+  const auth = getAuth();
+  const [host, setHost] = useState("");
   const [boardList, setBoardList] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
@@ -27,6 +30,7 @@ const Board = () => {
 
   const navigate = useNavigate();
   const boardCollection = collection(db, "board");
+console.log(auth);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,9 +42,8 @@ const Board = () => {
       });
       return;
     }
-
     try {
-      await addDoc(boardCollection, { description });
+      await addDoc(boardCollection, { description, host:auth.currentUser.email, participantes:[auth.currentUser.email] });
       Swal.fire({
         title: "Tablero creado!",
         text: "Tu tablero ha sido agregado exitosamente.",

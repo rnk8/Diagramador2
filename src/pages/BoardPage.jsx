@@ -15,7 +15,7 @@ import Sidebar from "../components/control/Sidebar";
 import CustomEdgeStartEnd from "../components/CustomEdgeStartEnd";
 import { onSnapshot, doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase-confing/Firebase";
-
+import { getAuth } from "firebase/auth";
 const nodeTypes = { classNode: ClassNode };
 const edgeTypes = { "start-end": CustomEdgeStartEnd };
 const edgeOptions = { animated: true, style: { stroke: "black" } };
@@ -25,6 +25,9 @@ let nodeId = 0;
 const BoardPage = () => {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
+  const [participantes, setParticipantes] = useState([]);
+
+  const auth = getAuth();
   const [selectedNode, setSelectedNode] = useState(null);
   const [selectedEdge, setSelectedEdge] = useState(null);
   const [editingData, setEditingData] = useState(null);
@@ -208,7 +211,7 @@ const BoardPage = () => {
   };
   //funcion atribute
   const atribute = (name, i, id) => {
-    return  `<UML:Attribute name="${name}" changeable="none" visibility="private" ownerScope="instance" targetScope="instance">
+    return `<UML:Attribute name="${name}" changeable="none" visibility="private" ownerScope="instance" targetScope="instance">
 									<UML:Attribute.initialValue>
 										<UML:Expression/>
 									</UML:Attribute.initialValue>
@@ -231,12 +234,14 @@ const BoardPage = () => {
 								</UML:Attribute>
 							`;
   };
-//Funcion para asociones 
-const association=()=>{
-  let associaciones = ''
-  edges.map ((flecha, i)=>{
-    associaciones = associaciones + `<UML:Association xmi.id="${flecha.id}" visibility="public" isRoot="false" isLeaf="false" isAbstract="false">`
-    + `<UML:ModelElement.taggedValue>
+  //Funcion para asociones
+  const association = () => {
+    let associaciones = "";
+    edges.map((flecha, i) => {
+      associaciones =
+        associaciones +
+        `<UML:Association xmi.id="${flecha.id}" visibility="public" isRoot="false" isLeaf="false" isAbstract="false">` +
+        `<UML:ModelElement.taggedValue>
 								<UML:TaggedValue tag="style" value="3"/>
 								<UML:TaggedValue tag="ea_type" value="${flecha.data.type}"/>
 								<UML:TaggedValue tag="direction" value="Unspecified"/>
@@ -256,16 +261,30 @@ const association=()=>{
 								<UML:TaggedValue tag="virtualInheritance" value="0"/>
 								<UML:TaggedValue tag="lb" value="1"/>
 								<UML:TaggedValue tag="rb" value="1"/>
-							</UML:ModelElement.taggedValue> `
-              + `<UML:Association.connection>
-								<UML:AssociationEnd visibility="public" multiplicity="${flecha.data.startLabel}" aggregation="none  " isOrdered="false" targetScope="instance" changeable="none" isNavigable="true" type="EAID_MYCLASS_00${flecha.source}">
+							</UML:ModelElement.taggedValue> ` +
+        `<UML:Association.connection>
+								<UML:AssociationEnd visibility="public" multiplicity="${
+                  flecha.data.startLabel
+                }" aggregation="none  " isOrdered="false" targetScope="instance" changeable="none" isNavigable="true" type="EAID_MYCLASS_00${
+          flecha.source
+        }">
 									<UML:ModelElement.taggedValue>
 										<UML:TaggedValue tag="containment" value="Unspecified"/>
 										<UML:TaggedValue tag="sourcestyle" value="Union=0;Derived=0;AllowDuplicates=0;Owned=0;Navigable=Unspecified;"/>
 										<UML:TaggedValue tag="ea_end" value="source"/>
 									</UML:ModelElement.taggedValue>
 								</UML:AssociationEnd>
-								<UML:AssociationEnd visibility="public" multiplicity="${flecha.data.endLabel}" aggregation="${flecha.data.type == 'Association' ? 'none' : (flecha.data.type == 'Aggregation' ? 'shared' : 'composite' ) }" isOrdered="false" targetScope="instance" changeable="none" isNavigable="true" type="EAID_MYCLASS_00${flecha.target}">
+								<UML:AssociationEnd visibility="public" multiplicity="${
+                  flecha.data.endLabel
+                }" aggregation="${
+          flecha.data.type == "Association"
+            ? "none"
+            : flecha.data.type == "Aggregation"
+            ? "shared"
+            : "composite"
+        }" isOrdered="false" targetScope="instance" changeable="none" isNavigable="true" type="EAID_MYCLASS_00${
+          flecha.target
+        }">
 									<UML:ModelElement.taggedValue>
 										<UML:TaggedValue tag="containment" value="Unspecified"/>
 										<UML:TaggedValue tag="deststyle" value="Union=0;Derived=0;AllowDuplicates=0;Owned=0;Navigable=Unspecified;"/>
@@ -274,14 +293,14 @@ const association=()=>{
 								</UML:AssociationEnd>
 							</UML:Association.connection>
               </UML:Association>`;
-  })
-  return associaciones;
-}
+    });
+    return associaciones;
+  };
   //FUNCION DE EXPORTAR
   async function saveXMLFile() {
     let classes = "";
     let element = "";
-    let at = ''   
+    let at = "";
     const xmlContent = `<?xml version="1.0" encoding="windows-1252"?>
 <XMI xmi.version="1.1" xmlns:UML="omg.org/UML1.3" timestamp="2024-10-04 05:45:18">
 	<XMI.header>
@@ -347,14 +366,15 @@ const association=()=>{
 							</UML:ModelElement.taggedValue>
               <UML:Classifier.feature>
               `;
-              node.data.attributes.map((atribute1, ii) => {
-                classes = classes + atribute(atribute1, ii, node.id)
-              });
-              classes = classes +  
-              `</UML:Classifier.feature> 
+      node.data.attributes.map((atribute1, ii) => {
+        classes = classes + atribute(atribute1, ii, node.id);
+      });
+      classes =
+        classes +
+        `</UML:Classifier.feature> 
               </UML:Class>`;
 
-        element =
+      element =
         element +
         `<UML:DiagramElement geometry="Left=${parseInt(
           node.position.x + 30
@@ -365,7 +385,7 @@ const association=()=>{
         }" seqno="${i + 1}" style="DUID=12345;"/>
         `;
     });
-    classes= classes + association() ;
+    classes = classes + association();
     const body1 = `</UML:Namespace.ownedElement>
     				</UML:Package>
 				</UML:Namespace.ownedElement>
@@ -423,11 +443,23 @@ const association=()=>{
   useEffect(() => {
     const boardDocRef = doc(db, "board", boardId);
     const unsubscribe = onSnapshot(boardDocRef, (docSnapshot) => {
-      if (docSnapshot.exists()) {
+      const host = docSnapshot.data().host;
+      let participantes2 = [];
+      participantes2 = docSnapshot.data().participantes;
+      setParticipantes(participantes2);
+
+      if (
+        docSnapshot.exists() &&
+        (host === auth.currentUser.email ||
+          participantes2.includes(auth.currentUser.email))
+      ) {
         const boardData = docSnapshot.data();
         setNodes(boardData.nodes || []);
         setEdges(boardData.edges || []);
         nodeId = boardData.nodes.length;
+      }
+      else {
+        
       }
     });
     return () => unsubscribe();
@@ -448,13 +480,18 @@ const association=()=>{
         updateEdgeData={updateEdgeData}
       />
       <div style={{ flex: 1, position: "relative" }}>
-        <div>
+        <div className="flex">
           <button
             onClick={saveXMLFile}
-            className="bg-gray-300 text-black py-2 px-3 rounded-full mb-4 hover:bg-gray-400 transition-colors duration-200 "
+            className=" mx-5 bg-gray-300 text-black py-2 px-3 rounded-full mb-4 hover:bg-gray-400 transition-colors duration-200 "
           >
             Exportar XML
           </button>
+          <ul>
+            {participantes.map((participante) => (
+              <li>{participante + ' '}</li>
+            ))}
+          </ul>
         </div>
         <ReactFlow
           nodes={nodes}
