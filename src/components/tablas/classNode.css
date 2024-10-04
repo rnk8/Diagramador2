@@ -1,0 +1,42 @@
+.class-node {
+  border: 1px solid #000; /* Borde más sutil */
+  border-radius: 4px; /* Radio menor para bordes más rectos */
+  padding: 10px;
+  background-color: #ffffff;
+  width: 220px;
+  font-family: 'Arial', sans-serif; /* Fuente común en UML */
+}
+
+.class-name {
+  font-size: 1.2em;
+  text-align: center;
+  margin-bottom: 5px;
+  font-weight: bold;
+  border-bottom: 1px solid #000; /* Línea divisoria */
+}
+
+.class-attributes,
+.class-methods {
+  margin-top: 10px;
+}
+
+h4 {
+  font-size: 1em;
+  margin: 0 0 5px 0;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  padding: 2px 0;
+}
+.handle {
+  width: 10px; /* Ajusta según el tamaño deseado */
+  height: 10px;
+  border-radius: 50%;
+  background-color: black;
+}

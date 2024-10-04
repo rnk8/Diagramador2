@@ -1,0 +1,21 @@
+.sidebar {
+  background-color: #f3f4f6; /* Color claro */
+  border-radius: 0 20px 20px 0; /* Bordes redondeados */
+  transition: all 0.3s ease;
+}
+
+.sidebar button {
+  transition: all 0.2s ease;
+}
+
+.sidebar .bg-gray-100 {
+  background-color: #f3f4f6; /* Color de fondo más claro */
+}
+
+.sidebar .text-black {
+  color: #333; /* Texto oscuro para contraste */
+}
+
+.sidebar .rounded-md {
+  border-radius: 12px; /* Bordes más redondeados para el contenedor del nodo */
+}
